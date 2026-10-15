@@ -103,3 +103,4 @@ style.css: Masthead 137, Toolbar 192, Lanes 269, Board 309, Lane stats 396, Pane
 | 2026-10-15 | Web UI (html/css/app.js) | inline | ~45K | |
 | 2026-10-15 | Headless browser checks + fixes | inline | ~12K | puppeteer-core in scratchpad |
 | 2026-10-15 | Perf fix: container queries → `--bw` var, rAF redraw | inline | ~15K | cqi units made layout ~7x slower |
+| 2026-10-15 | Commit, push, GitHub Pages deploy + live checks | inline | ~10K | Pages serves `web-solver` branch root |
