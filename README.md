@@ -2,7 +2,9 @@
 
 A web page where six algorithms play [2048](https://play2048.co/) side by side. Each board starts from the same seed, so you can see how each algorithm handles the same opening.
 
-Open `index.html` in a browser. No build step and no dependencies.
+**Try it: https://nikitaulianov123.github.io/2048_Solver/**
+
+To run it locally, open `index.html` in a browser. No build step and no dependencies.
 
 ## Views
 
