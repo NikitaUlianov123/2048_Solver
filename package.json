@@ -1,0 +1,10 @@
+{
+  "name": "2048-solver-arena",
+  "version": "2.0.0",
+  "description": "Watch six 2048 algorithms play side by side in the browser.",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test test/core.test.js"
+  }
+}
