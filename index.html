@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>2048 Solver Arena</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Watch six 2048 algorithms play side by side, from random moves to expectimax search.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23e8b616'/%3E%3Ctext x='32' y='41' font-family='Arial Black,Arial' font-weight='900' font-size='22' fill='%23fff' text-anchor='middle'%3E2048%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"><span>20</span><span>48</span></div>
+      <div>
+        <h1>Solver Arena</h1>
+        <p class="lede">Six algorithms play 2048 side by side, from random swipes to expectimax search. Each board starts from the same seed.</p>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Views">
+      <button class="tab" role="tab" id="tab-arena" aria-controls="view-arena" data-view="arena">Arena</button>
+      <button class="tab" role="tab" id="tab-benchmark" aria-controls="view-benchmark" data-view="benchmark">Benchmark</button>
+      <button class="tab" role="tab" id="tab-algorithms" aria-controls="view-algorithms" data-view="algorithms">Algorithms</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="view" id="view-arena" role="tabpanel" aria-labelledby="tab-arena">
+      <div class="toolbar">
+        <div class="toolbar-row">
+          <div class="btn-group">
+            <button class="btn btn-primary" id="btn-play" type="button"><span class="ico" aria-hidden="true"></span><span class="lbl">Pause</span></button>
+            <button class="btn" id="btn-step" type="button" title="One move for every board (S)">Step</button>
+            <button class="btn" id="btn-new" type="button" title="New game with a new seed (N)">New game</button>
+          </div>
+          <label class="field">
+            <span class="field-label">Speed</span>
+            <input type="range" id="speed" min="0" max="7" step="1" value="3">
+            <output id="speed-out" class="mono">8 moves/s</output>
+          </label>
+          <label class="field">
+            <span class="field-label">Think time</span>
+            <select id="think">
+              <option value="10">10 ms</option>
+              <option value="50" selected>50 ms</option>
+              <option value="200">200 ms</option>
+              <option value="500">500 ms</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">Seed</span>
+            <input type="number" id="seed" class="mono" min="1" max="999999" step="1">
+          </label>
+        </div>
+        <div class="chips" id="algo-chips" role="group" aria-label="Algorithms on the board"></div>
+      </div>
+
+      <div class="lanes" id="lanes"></div>
+
+      <section class="panel race">
+        <div class="panel-head">
+          <div>
+            <h2>Score race</h2>
+            <p class="sub">Score after each move. Hover to compare the boards at the same move.</p>
+          </div>
+          <div class="legend" id="race-legend"></div>
+        </div>
+        <div class="chart-wrap" id="race-wrap">
+          <svg id="race" role="img" aria-label="Score by move for each algorithm"></svg>
+          <div class="tooltip" id="race-tip" hidden></div>
+        </div>
+      </section>
+    </section>
+
+    <section class="view" id="view-benchmark" role="tabpanel" aria-labelledby="tab-benchmark" hidden>
+      <div class="toolbar">
+        <div class="toolbar-row">
+          <label class="field">
+            <span class="field-label">Games per algorithm</span>
+            <select id="bench-games">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">Think time</span>
+            <select id="bench-think">
+              <option value="2">2 ms</option>
+              <option value="5" selected>5 ms</option>
+              <option value="10">10 ms</option>
+              <option value="20">20 ms</option>
+            </select>
+          </label>
+          <div class="btn-group">
+            <button class="btn btn-primary" id="bench-run" type="button">Run benchmark</button>
+          </div>
+          <p class="bench-status mono" id="bench-status" aria-live="polite"></p>
+        </div>
+        <div class="chips" id="bench-chips" role="group" aria-label="Algorithms to benchmark"></div>
+      </div>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Best tile reached</h2>
+            <p class="sub">Share of games by the largest tile on the final board. Every algorithm plays the same seeds.</p>
+          </div>
+          <div class="legend" id="dist-legend"></div>
+        </div>
+        <div class="chart-wrap" id="dist-wrap">
+          <div id="dist"></div>
+          <div class="tooltip" id="dist-tip" hidden></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Results</h2>
+            <p class="sub" id="bench-note">Search algorithms stop thinking when the think time runs out, so results depend on the speed of this computer.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="results" id="bench-table">
+            <thead>
+              <tr>
+                <th scope="col">Algorithm</th>
+                <th scope="col" class="num">Games</th>
+                <th scope="col" class="num">Avg score</th>
+                <th scope="col" class="num">Median</th>
+                <th scope="col" class="num">Best</th>
+                <th scope="col" class="num">Avg moves</th>
+                <th scope="col" class="num">ms / move</th>
+                <th scope="col" class="num">512</th>
+                <th scope="col" class="num">1024</th>
+                <th scope="col" class="num">2048</th>
+                <th scope="col" class="num">4096</th>
+                <th scope="col" class="num">8192</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <section class="view" id="view-algorithms" role="tabpanel" aria-labelledby="tab-algorithms" hidden>
+      <div class="algo-grid" id="algo-cards"></div>
+      <section class="panel notes">
+        <h2>The rules these bots play by</h2>
+        <ul>
+          <li>After every move that changes the board, one new tile appears in a random empty cell: a 2 with 90% probability, a 4 with 10%.</li>
+          <li>A move that changes nothing is not allowed, and no tile appears.</li>
+          <li>The game ends when no move changes the board, even if the board is not full until then.</li>
+          <li>Each board is stored as a 64-bit value (4 bits per cell), and each move uses precomputed row tables. This lets the search bots look at millions of positions per move.</li>
+        </ul>
+      </section>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>Random and Greedy are the original bots from the 2022 C# version of this project (StupidBot and ehBot). The expectimax heuristic follows <a href="https://github.com/nneonneo/2048-ai" target="_blank" rel="noopener">nneonneo/2048-ai</a>.</p>
+    <p class="keys mono">Space: play/pause · S: step · N: new game</p>
+  </footer>
+</div>
+<script src="js/core.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
